@@ -14,22 +14,51 @@ User permissions to repositories are determined by membership of Google groups.
 ## How to install
 
 Run `go install github.com/payfazz/fazz-ecr/cmd/...@latest` to install both
-utilities in your `$GOBIN`.
+utilities in your `$GOBIN`. Put `$GOBIN` in your environment to make the program accessible from your terminal.
 
 ## Quickstart
+1. Make sure that docker is installed
+   ```
+   which docker
+   ```
+   If docker is not found, install docker first by following the instructions [here]("https://docs.docker.com/engine/install/")
 
-- Run `docker-credential-fazz-ecr update-config`. If `{HOME}/.docker/config.json`
-  doesn't exist, create the file with `{}` (this is empty JSON object) content,
-  and then run the command again.
 
-- Create a new repository with command
-  `fazz-ecr-create-repo 322727087874.dkr.ecr.ap-southeast-1.amazonaws.com/{owner}/{repository_name}`,
-  where `{owner}` is your email or group name but all characters outside the
-  `a-zA-Z0-9-_` regex is replaced with `-`. For example, if your email is
-  `win@payfazz.com`, you can create a repository with this command
-  `fazz-ecr-create-repo 322727087874.dkr.ecr.ap-southeast-1.amazonaws.com/win-payfazz-com/example-service`.
-  For Group, it will derived from `auth-*@fazzfinancial.com`, For example, if you are member of group `auth-shopfazz@fazzfinancial.com`,
-  you will have access to `322727087874.dkr.ecr.ap-southeast-1.amazonaws.com/shopfazz/*`
+2. Check for the file in `{HOME}/.docker/config.json`. If it is not available create the file with `{}` (empty json object). Or run this command:
+   
+   ```sh
+   [ ! -f ${HOME}/.docker/config.json ] && mkdir -p ${HOME}/.docker && echo "{}" > ${HOME}/.docker/config.json
+   ```
+3. To generate fazz-ecr auth config for docker, run the following on terminal:
+
+   ```
+   docker-credential-fazz-ecr update-config
+   ```
+4. You can now create a repository based on your account. For example, you are creating a service named `foo` and have built the docker image. Run the following command to create the repo
+   ```sh
+   fazz-ecr-create-repo 322727087874.dkr.ecr.ap-southeast-1.amazonaws.com/your_name@fazzfinancial.com/foo
+   ```
+   After creating the repository, you can now push the docker image using the ususal docker command
+   ```
+   docker push 322727087874.dkr.ecr.ap-southeast-1.amazonaws.com/your_name@fazzfinancial.com/foo:1.0.0
+   ```
+   ---
+
+   **NOTE**
+
+   This repository objects is immutable, which means that an image with the same tag cannot be pushed twice. 
+
+   ---
+   The same rule is applicable to repository with your team's name. For example you are in `payfazz` team, you have access to create a repository on 
+   `322727087874.dkr.ecr.ap-southeast-1.amazonaws.com/payfazz/*`.
+
+   e.g. you can push on this repository if you are registered at payfazz team
+   ```bash
+   docker push 322727087874.dkr.ecr.ap-southeast-1.amazonaws.com/payfazz/authfazz:v1.0.0
+   ```
+
+   To find which team you are registered at, please ask your team lead or any of the SRE team.
+
 
 ## How to use in GitHub Actions
 
